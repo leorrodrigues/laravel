@@ -2,7 +2,7 @@ version: '2.3'
 services:
   #PHP LARAVEL
   app:
-    build: .
+    image: leorrodrigues/laravel
     container_name: app
     networks:
       - app-network
