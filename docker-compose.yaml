@@ -1,0 +1,67 @@
+version: '2.3'
+services:
+  #PHP LARAVEL
+  app:
+    build: .
+    container_name: app
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  #NGINX
+  nginx:
+    build: .docker/nginx
+    container_name: nginx
+    restart: always
+    tty: true
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www
+    networks:
+      - app-network
+
+  #REDIS
+  redis:
+    image: redis:6.0.3-alpine
+    container_name: redis
+    restart: always
+    tty: true
+    networks:
+      - app-network
+    expose:
+      - 6379
+
+  #MYSQL
+  db:
+    image: mysql:5.7
+    command: --innodb_use_native_aio=0
+    container_name: db
+    restart: always
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=laravel
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=root
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", 'mysql -uroot --database=laravel --password=root --execute="SELECT count(table_name) > 0 FROM information_schema.tables;" --skip-column-names -B']
+      timeout: 10s
+      interval: 10s
+      retries: 5
+
+#networks
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
