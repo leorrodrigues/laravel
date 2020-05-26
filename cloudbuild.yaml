@@ -17,7 +17,7 @@ steps:
 
   - id: "Rodando as migrações"
     name: 'gcr.io/cloud-builders/docker'
-    args: ['exec','-t','app','php','/var/www/artisan','migration']
+    args: ['exec','-t','app','php','/var/www/artisan','migrate']
 
   - id: "Rodando php-unit"
     name: 'gcr.io/cloud-builders/docker'
